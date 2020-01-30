@@ -39,7 +39,7 @@ public class AddressBasedAuthorizer {
     protected MinimumRequiredCalculation requiredCalculation;
 
     public AddressBasedAuthorizer(List<ECKey> authorizedKeys, MinimumRequiredCalculation requiredCalculation) {
-        this.authorizedAddresses = authorizedKeys.stream().map(key -> key.getAddress()).collect(Collectors.toList());
+        this.authorizedAddresses = authorizedKeys.stream().map(ECKey::getAddress).collect(Collectors.toList());
         this.requiredCalculation = requiredCalculation;
     }
 

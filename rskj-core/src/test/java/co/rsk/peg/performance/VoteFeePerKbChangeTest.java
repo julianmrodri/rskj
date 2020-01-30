@@ -22,6 +22,7 @@ import co.rsk.bitcoinj.core.Coin;
 import co.rsk.peg.Bridge;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -41,13 +42,12 @@ public class VoteFeePerKbChangeTest extends BridgePerformanceTestCase {
         TxBuilder txBuilder = (int executionIndex) -> {
             String generator = "auth-fee-per-kb";
             ECKey sender = ECKey.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)));
-
             return Helper.buildTx(sender);
         };
 
         ExecutionStats stats = new ExecutionStats("voteFeePerKbChange");
         executeAndAverage("voteFeePerKbChange", 1000, abiEncoder, storageInitializer, txBuilder, Helper.getRandomHeightProvider(10), stats);
-
+        Assert.assertEquals("voteFeePerKbChange", stats.name);
         BridgePerformanceTest.addStats(stats);
     }
 
@@ -60,13 +60,12 @@ public class VoteFeePerKbChangeTest extends BridgePerformanceTestCase {
         TxBuilder txBuilder = (int executionIndex) -> {
             String generator = "unauthorized";
             ECKey sender = ECKey.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)));
-
             return Helper.buildTx(sender);
         };
 
         ExecutionStats stats = new ExecutionStats("voteFeePerKbChange_unauthorized");
         executeAndAverage("voteFeePerKbChange_unauthorized", 1000, abiEncoder, storageInitializer, txBuilder, Helper.getRandomHeightProvider(10), stats);
-
+        Assert.assertEquals("voteFeePerKbChange_unauthorized", stats.name);
         BridgePerformanceTest.addStats(stats);
     }
 }
