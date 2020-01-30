@@ -13,30 +13,40 @@ import org.slf4j.LoggerFactory;
 import java.security.SignatureException;
 import java.util.Map;
 
-public class ReceivedTxSignatureCache {
+public class BlockTxSignatureCache {
     private static final Logger logger = LoggerFactory.getLogger(ReceivedTxSignatureCache.class);
     private static final Profiler profiler = ProfilerFactory.getInstance();
 
     private static final int MAX_CACHE_SIZE = 6000;
 
     private final Map<Transaction, RskAddress> addressesCache;
+    private ReceivedTxSignatureCache cacheN2;
 
-    public ReceivedTxSignatureCache() {
+    public BlockTxSignatureCache(ReceivedTxSignatureCache cacheN2) {
+        this.cacheN2 = cacheN2;
         addressesCache = new MaxSizeHashMap<>(MAX_CACHE_SIZE,true);
     }
 
     public RskAddress getSender(Transaction transaction) {
 
+        RskAddress sender;
+
         if (transaction instanceof RemascTransaction) {
             return RemascTransaction.REMASC_ADDRESS;
         }
 
-        RskAddress sender = addressesCache.computeIfAbsent(transaction, this::extractSenderFromSignature);
-        return sender;
-    }
+        if (addressesCache.containsKey(transaction)) {
+            return addressesCache.get(transaction);
+        }
 
-    public boolean containsTx(Transaction transaction) {
-        return addressesCache.containsKey(transaction);
+        if (cacheN2.containsTx(transaction)) {
+            sender = cacheN2.getSender(transaction);
+            addressesCache.put(transaction, sender);
+        } else {
+            sender = addressesCache.computeIfAbsent(transaction, this::extractSenderFromSignature);
+        }
+
+        return sender;
     }
 
     private RskAddress extractSenderFromSignature(Transaction tx) {
